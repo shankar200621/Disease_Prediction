@@ -38,6 +38,20 @@ export function AuthProvider({ children }) {
     return res;
   };
 
+  const googleLogin = async (credential) => {
+    const response = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential })
+    });
+    const res = await response.json();
+    if (!response.ok) throw new Error(res.message || 'Google sign-in failed');
+    setToken(res.token);
+    setUser(res.user);
+    localStorage.setItem('hp_user', JSON.stringify(res.user));
+    return res;
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -52,6 +66,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: !!user && !!getToken(),
       login,
       register,
+      googleLogin,
       logout,
     }),
     [user, ready]

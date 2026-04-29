@@ -5,6 +5,9 @@ const User = require('../models/User');
 const { signToken } = require('../middleware/auth');
 
 const router = express.Router();
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 
 router.post('/register', async (req, res, next) => {
   try {
@@ -146,12 +149,92 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
-/** Placeholder — wire Google Identity Services token verification in production */
-router.post('/google', (req, res) => {
-  res.status(501).json({
-    success: false,
-    message: 'Google OAuth is not configured on this server. Use email/password or set GOOGLE_CLIENT_ID.',
-  });
+router.post('/google', async (req, res, next) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ success: false, message: 'Missing Google credential' });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(501).json({
+        success: false,
+        message: 'Google OAuth is not configured on this server. Use email/password or set GOOGLE_CLIENT_ID.',
+      });
+    }
+
+    // Verify token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(401).json({ success: false, message: 'Invalid Google token' });
+    }
+
+    const emailNorm = String(payload.email).toLowerCase().trim();
+    const fullName = payload.name || 'Google User';
+
+    // Check if user exists
+    let user = await User.findOne({ email: emailNorm });
+    let patient;
+
+    if (!user) {
+      // Check if patient exists without user
+      patient = await Patient.findOne({ email: emailNorm });
+      if (!patient) {
+        patient = await Patient.create({
+          fullName,
+          email: emailNorm,
+        });
+      }
+      
+      // Create user with a random unguessable password since auth is handled by Google
+      const crypto = require('crypto');
+      const randomPassword = crypto.randomBytes(32).toString('hex');
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+      user = await User.create({
+        email: emailNorm,
+        fullName,
+        passwordHash,
+        patientId: patient._id,
+      });
+    } else {
+      patient = await Patient.findById(user.patientId);
+    }
+
+    let token;
+    try {
+      token = signToken({
+        userId: String(user._id),
+        patientId: String(patient._id),
+        email: user.email,
+      });
+    } catch (jwtErr) {
+      return res.status(503).json({
+        success: false,
+        message: 'Server is missing JWT_SECRET. Add JWT_SECRET to your .env file, then restart the API.',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        patientId: patient._id,
+      },
+    });
+
+  } catch (e) {
+    console.error('Google OAuth error:', e);
+    return res.status(401).json({ success: false, message: 'Google authentication failed' });
+  }
 });
 
 module.exports = router;
