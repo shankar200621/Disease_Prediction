@@ -192,19 +192,6 @@ export default function AppHeader() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem('hp_theme') === 'dark'; } catch { return false; }
-  });
-
-  const toggleTheme = () => {
-    setDark(d => {
-      const next = !d;
-      try { localStorage.setItem('hp_theme', next ? 'dark' : 'light'); } catch {}
-      // Apply to <html> for any pages that inherit it
-      document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light');
-      return next;
-    });
-  };
 
   const doLogout = () => {
     logout();
@@ -212,7 +199,7 @@ export default function AppHeader() {
     setOpen(false);
   };
 
-  const theme = dark ? 'dark' : 'light';
+  const theme = 'light';
   const initials = user?.fullName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?';
   const displayName = user?.fullName || user?.email?.split('@')[0] || 'Me';
 
@@ -241,17 +228,6 @@ export default function AppHeader() {
 
         {/* Right controls */}
         <div className="ah-right">
-
-          {/* Theme toggle */}
-          <button className="ah-theme-btn" onClick={toggleTheme} aria-label="Toggle theme">
-            <span>{dark ? '🌙' : '☀️'}</span>
-            <div className="ah-toggle-track">
-              <div className={`ah-toggle-thumb${dark ? ' on' : ''}`} />
-            </div>
-            <span className="ah-theme-label">{dark ? 'Dark' : 'Light'}</span>
-          </button>
-
-          <div className="ah-sep" />
 
           {/* User chip */}
           <div className="ah-user" title={displayName}>
@@ -289,9 +265,6 @@ export default function AppHeader() {
               </Link>
             ))}
             <div className="ah-drawer-sep" />
-            <button className="ah-drawer-action" onClick={toggleTheme}>
-              {dark ? '☀️  Switch to Light' : '🌙  Switch to Dark'}
-            </button>
             <button className="ah-drawer-action" onClick={doLogout}>
               Log out
             </button>
