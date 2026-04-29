@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: healthpredict-ai
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false          # Set in Render dashboard — use MongoDB Atlas connection string
+      - key: JWT_SECRET
+        sync: false          # Set in Render dashboard — use a long random string
+      - key: GROQ_API_KEY
+        sync: false          # Set in Render dashboard
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: CLIENT_ORIGIN
+        sync: false          # Set to your Render app URL e.g. https://healthpredict-ai.onrender.com

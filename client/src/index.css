@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ════════════════════════════════════════════════════
+   GLOBAL RESET — clean neutral base, no opinionated
+   colors or fonts. Each page/component owns its own
+   design tokens via inline <style> blocks.
+   ════════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #fafbff;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── Universal font reset: Inter everywhere ── */
+*, *::before, *::after {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif !important;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1a0a3c;
+  background-color: #fafbff;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* ── Remove default styles that browsers add ── */
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img, video, svg {
+  display: block;
+  max-width: 100%;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* ── Smooth scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(124, 58, 237, 0.04);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.25);
+  border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.45);
+}
+
+/* ── Focus ring — accessible but styled ── */
+:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Selection color ── */
+::selection {
+  background: rgba(124, 58, 237, 0.18);
+  color: #1a0a3c;
+}
+
+/* ════════════════════════════════════════════════════
+   LEGACY UTILITY CLASSES
+   Kept for backward compat if any old component uses them.
+   They will not interfere since pages use their own styles.
+   ════════════════════════════════════════════════════ */
+
+.page-shell {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+}
+
+/* Spinner for splash (kept for KnowledgeGraph and other unchanged pages) */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.animate-ring {
+  animation: spin-slow 1.2s linear infinite;
+}
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.2s ease-in-out infinite;
+}
+
+/* Shadow glow for KnowledgeGraph icon */
+.shadow-glow {
+  box-shadow: 0 0 24px rgba(124, 58, 237, 0.45), 0 8px 24px rgba(124, 58, 237, 0.25);
+}
+
+/* Glass card used in KnowledgeGraph */
+.glass {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background-color: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20px 50px -10px rgba(135, 142, 172, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+.glass-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -15px rgba(135, 142, 172, 0.2);
+}
+
+/* Gradient text (used in KnowledgeGraph) */
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(120deg, #9333ea 0%, #c084fc 35%, #a855f7 65%, #d8b4fe 100%);
+  background-size: 220% auto;
+  animation: textGradientFlow 10s ease infinite;
+}
+@keyframes textGradientFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Pill accent */
+.pill-accent {
+  display: inline-flex; align-items: center;
+  border-radius: 100px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.08);
+  padding: 4px 14px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: #7c3aed;
+}
+
+/* Input glass (used in older form fields if any) */
+.input-glass {
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px solid rgba(124, 58, 237, 0.15);
+  background: #faf9ff;
+  padding: 12px 16px;
+  color: #1a0a3c;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-glass:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+.input-glass::placeholder {
+  color: #c4b5d4;
+}
+
+/* Font display (kept for any page using font-display class) */
+.font-display {
+  font-family: 'Syne', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
